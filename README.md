@@ -1,4 +1,4 @@
-<h1 align="center">4×4 Patch Array at 77 GHz on RT/duroid 5880</h1>
+<h1 align="center">Automotive Radar Array Antenna @ 77GHz</h1>
 
 <p align="center">
   <em>openEMS full-wave study of a planar antenna array for automotive radar –

@@ -92,8 +92,7 @@ def build(lang: str) -> Path:
     z_c = zin_at("work_cand_L1p1683_s0p020")
 
     r = Report(
-        title=T("4×4-Patch-Array für 77 GHz",
-                "4×4 Patch Array for 77 GHz"),
+        title="Automotive Radar Array Antenna @ 77GHz",
         author="VisualOpenEMS · openEMS",
         subject=T("openEMS-Studie: Elemententwurf, Anpassung und "
                   "Strahlschwenkung auf RT/duroid 5880",
@@ -107,8 +106,7 @@ def build(lang: str) -> Path:
     r.table_word = T("Tabelle", "Table")
 
     # ------------------------------------------------------------- cover
-    r.p(T("4×4-Patch-Array für 77 GHz", "4×4 Patch Array for 77 GHz"),
-        style="Title")
+    r.p("Automotive Radar Array Antenna @ 77GHz", style="Title")
     r.p(T("Vollwellen-Entwurf einer Gruppenantenne für den automobilen "
           "Radarbereich auf RT/duroid 5880 – vom Hammerstad-Erstentwurf "
           "über das Impedanz-Retuning bis zur Strahlschwenkung",
