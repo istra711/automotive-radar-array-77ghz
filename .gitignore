@@ -6,10 +6,15 @@ work_element/
 work_array_broadside/
 work_array_embedded/
 work_array_scan30/
+work_scan_*/
 work_cand_*/
 work_inset005_77ghz/
 work_probe_only_77ghz/
 work_patch_element_77ghz_wideband/
+
+# ---- sweep helper output -------------------------------------------------
+sweep_logs/
+sweep_frames/
 
 # ---- logs ----------------------------------------------------------------
 *.log

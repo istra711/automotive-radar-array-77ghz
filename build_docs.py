@@ -749,6 +749,50 @@ def build(lang: str) -> Path:
                "Top view of the field magnitude 1.02 mm above the board; "
                "green: patch outlines."), 13.0)
 
+    r.h2("5.6", T("Strahlschwenkungs-Sweep", "Beam-steering sweep"))
+    r.p(T(
+        "Für die Animation wurden elf vollständige FDTD-Läufe mit "
+        "Steuerwinkeln von −50° bis +50° in 10°-Schritten gerechnet; "
+        "geändert werden dabei ausschließlich die progressiven Portphasen, "
+        "Gitter und Platine bleiben identisch. Bild 15 zeigt die "
+        "E-Ebenen aller elf Läufe mit vorzeichenbehaftetem Winkel (φ = 0 für "
+        "+x, φ = 180 für −x). Das Maximum folgt dem Sollwinkel, bleibt aber "
+        "mit wachsendem Winkel zunehmend dahinter zurück: rund 2° bei ±10°, "
+        "2–8° bei ±30° und 16–18° bei ±50°. Ursache ist die endliche "
+        "Elementkeule, die zu großen Winkeln hin abfällt und das Produkt "
+        "aus Element- und Arrayfaktor Richtung Broadside zieht; die "
+        "Unsymmetrie zwischen +x und −x folgt aus der leicht unsymmetrischen "
+        "Charakteristik der sondengespeisten Patches. Der Spitzengewinn "
+        "bleibt bis ±30° nahezu konstant bei 17,6–18,2 dBi und fällt zu den "
+        "Rändern auf 15,9 dBi (+50°) bzw. 16,5 dBi (−50°) ab. Der Lauf mit "
+        "θ0 = 0° reproduziert den Broadside-Produktionslauf exakt "
+        "(17,914 dBi bei θ = 2°) und bestätigt damit die Sweep-Kette. Die "
+        "Animation selbst liegt als `anim_beam_steer.gif` im Repository.",
+        "The animation is based on eleven complete FDTD runs with steering "
+        "angles from −50° to +50° in 10° steps; only the progressive port "
+        "phases change, the mesh and the board stay identical. Figure 15 "
+        "shows the E planes of all eleven runs on a signed angle axis "
+        "(φ = 0 for +x, φ = 180 for −x). The maximum follows the nominal "
+        "angle but lags increasingly behind it: about 2° at ±10°, 2–8° at "
+        "±30° and 16–18° at ±50°. The reason is the finite element beam, "
+        "which rolls off towards large angles and pulls the product of "
+        "element and array factor back towards broadside; the asymmetry "
+        "between +x and −x follows from the slightly asymmetric pattern of "
+        "the probe-fed patches. The peak gain stays almost constant at "
+        "17.6–18.2 dBi up to ±30° and drops towards the edges to 15.9 dBi "
+        "(+50°) and 16.5 dBi (−50°). The θ0 = 0° run reproduces the "
+        "broadside production run exactly (17.914 dBi at θ = 2°), which "
+        "validates the sweep chain. The animation itself is available as "
+        "`anim_beam_steer.gif` in the repository."))
+    if (FIG / "fig15_beam_sweep.png").is_file():
+        r.figure(str(FIG / "fig15_beam_sweep.png"),
+                 T("E-Ebenen aller elf Sweep-Läufe (−50°…+50°) über dem "
+                   "vorzeichenbehafteten Winkel (φ = 0 für +x, φ = 180 für "
+                   "−x); Farbe = Sollwinkel, Punkte = jeweiliges Maximum.",
+                   "E planes of all eleven sweep runs (−50°…+50°) versus the "
+                   "signed angle (φ = 0 for +x, φ = 180 for −x); colour = "
+                   "nominal angle, dots = individual maxima."), 16.0)
+
     # ------------------------------------------------------------- 6
     r.h1("6", T("Ergebnisse und Diskussion", "Results and discussion"))
     r.h2("6.1", T("Kennzahlen", "Key figures"))

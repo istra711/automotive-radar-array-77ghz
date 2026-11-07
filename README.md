@@ -219,7 +219,38 @@ source area.
 
 ---
 
-## 6. Discretisation and computational effort
+## 6. Beam-steering animation (full wave)
+
+<p align="center">
+  <img src="docs/figures/anim_beam_steer.gif" alt="Full-wave beam steering animation" width="720">
+</p>
+
+Eleven **complete FDTD runs**, one per steering angle from −50° to +50° in 10°
+steps. Every run uses the identical board and mesh and only changes the
+progressive port phase, so the animation is a genuine full-wave sweep
+including mutual coupling – not an array-factor interpolation. The 77 GHz gain
+pattern of each run is archived in `docs/sweep/scan_*.npz` (≈60 kB each).
+
+<p align="center">
+  <img src="docs/figures/fig15_beam_sweep.png" alt="E-plane cuts of the full sweep" width="820">
+</p>
+
+The θ₀ = 0° run reproduces the production broadside result exactly
+(17.914 dBi at θ = 2°), which validates the sweep pipeline end to end.
+The peak follows the nominal angle but lags with growing angle (≈2° at ±10°,
+2–8° at ±30°, 16–18° at ±50°) because the element pattern rolls off towards
+large angles; the peak gain stays at 17.6–18.2 dBi up to ±30° and drops to
+15.9/16.5 dBi at ±50°.
+
+```powershell
+python make_sweep.py        # write the 11 projects (phase step per angle)
+python run_sweep.py         # run them (2 in parallel, ~10 min per angle)
+python make_animation.py    # GIF + static sweep figure
+```
+
+---
+
+## 7. Discretisation and computational effort
 
 Mesh preset "high" with explicit cell sizes: max 0.25 mm, refined edge
 0.10 mm, min 0.07 mm, min z 0.06 mm. The 0.254 mm laminate is resolved by four
@@ -235,7 +266,7 @@ cells in z and the metal edges by about three cells. The FDTD run stops at
 
 ---
 
-## 7. Reproduction
+## 8. Reproduction
 
 **Requirements:** Python 3.11 with numpy, matplotlib, h5py and Pillow, plus an
 openEMS installation reachable through the VisualopenEMS project layer:
@@ -265,7 +296,7 @@ python run_all.py
 
 ---
 
-## 8. Repository layout
+## 9. Repository layout
 
 ```
 array_model.py            single source of truth: geometry, ports, mesh, NF2FF box
@@ -273,6 +304,9 @@ make_project.py           writes the .fcsim.json projects + figures 01..04
 validate_project.py       checks collisions, mesh rules, NF2FF box
 run_headless.py           generates the openEMS script and runs it
 plot_results.py           evaluates S-parameters and far fields (figures 05..14)
+make_sweep.py             writes the 11 beam-steering projects
+run_sweep.py              runs the full-wave sweep, archives docs/sweep/*.npz
+make_animation.py         builds anim_beam_steer.gif + figure 15
 build_docs.py             builds the German and English ODT reports
 run_all.py                end-to-end runner with skip logic
 analyze_zin.py            quick Zin(f) evaluation
@@ -283,14 +317,15 @@ make_controls.py          creates control projects (probe_only, inset005)
 make_wideband.py          wideband reference run
 *.fcsim.json              the projects (production + controls)
 work_*/                   simulation output (not versioned)
-docs/figures/             figures 01..14
+docs/figures/             figures 01..15 + anim_beam_steer.gif
+docs/sweep/               archived 77 GHz patterns of the steering sweep
 docs/results.json         numeric source for the report
 docs/*.odt                report in German and English
 ```
 
 ---
 
-## 9. Documentation
+## 10. Documentation
 
 | File | Content |
 |---|---|

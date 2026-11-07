@@ -240,6 +240,20 @@ def array_extent_mm() -> tuple[float, float]:
             (N_Y - 1) * PITCH_MM + PATCH_W_MM)
 
 
+#: Beam steering angles (deg, E-plane) of the full-wave sweep animation.
+SWEEP_ANGLES_DEG = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50]
+
+
+def sweep_tag(theta_deg: float) -> str:
+    """Short tag for a sweep angle: -50 -> 'm50', 0 -> '000', 30 -> 'p30'."""
+    a = int(round(theta_deg))
+    if a < 0:
+        return f"m{abs(a):02d}"
+    if a > 0:
+        return f"p{a:02d}"
+    return "000"
+
+
 def scan_phases_deg(theta_deg: float, phi_deg: float = 0.0) -> dict[int, float]:
     """Excitation phase (deg) per port for a beam at (theta, phi).
 
@@ -405,20 +419,28 @@ def _primitives(variant: str) -> list[dict[str, Any]]:
     return prims
 
 
-def _ports(variant: str) -> list[dict[str, Any]]:
+def _ports(variant: str, theta_deg: float | None = None) -> list[dict[str, Any]]:
     if variant == "element":
         # probe of the single, board-centred patch
         return [_port_dict(1, -PATCH_L_MM / 2.0 + FEED_INSET_MM, 0.0,
                            True, 0.0, name="P1")]
 
-    phases = scan_phases_deg(SCAN30_THETA_DEG) if variant == "scan30" else {}
+    if variant == "scan":
+        if theta_deg is None:
+            raise ValueError("variant 'scan' needs theta_deg")
+        phases = scan_phases_deg(theta_deg)
+    elif variant == "scan30":
+        phases = scan_phases_deg(SCAN30_THETA_DEG)
+    else:
+        phases = {}
+
     excited_only = variant == "embedded"
     ports = []
     for j in range(N_Y):
         for i in range(N_X):
             n = port_number(i, j)
             x, y = port_xy(n)
-            if variant in ("broadside", "scan30"):
+            if variant in ("broadside", "scan30", "scan"):
                 excite, phase = True, phases.get(n, 0.0)
             elif excited_only:
                 # P6 = inner element (i=1, j=1): embedded element pattern and
@@ -430,7 +452,7 @@ def _ports(variant: str) -> list[dict[str, Any]]:
     return ports
 
 
-def _notes(variant: str) -> str:
+def _notes(variant: str, theta_deg: float | None = None) -> str:
     common = (
         f"4x4 patch array, 77 GHz automotive radar, RT/duroid 5880 "
         f"(h={SUBSTRATE_H_MM} mm, eps_r={SUBSTRATE_EPS_R}, "
@@ -447,14 +469,24 @@ def _notes(variant: str) -> str:
                       "pattern including mutual coupling."),
         "scan30": (f" 16 ports with progressive phase for a beam steered to "
                    f"theta=+{SCAN30_THETA_DEG:g} deg (E-plane)."),
+        "scan": (f" 16 ports with progressive phase for a beam steered to "
+                 f"theta={theta_deg:g} deg (E-plane)."),
     }[variant]
     return common + extra
 
 
-def project_dict(name: str, variant: str) -> dict[str, Any]:
-    """Complete VisualopenEMS project dictionary for one excitation variant."""
-    if variant not in VARIANTS:
-        raise ValueError(f"unknown variant {variant!r}, expected one of {VARIANTS}")
+def project_dict(name: str, variant: str,
+                 theta_deg: float | None = None) -> dict[str, Any]:
+    """Complete VisualopenEMS project dictionary for one excitation variant.
+
+    ``variant="scan"`` additionally needs ``theta_deg`` (beam steering angle
+    used for the progressive element phases).
+    """
+    allowed = VARIANTS + ("scan",)
+    if variant not in allowed:
+        raise ValueError(f"unknown variant {variant!r}, expected one of {allowed}")
+    if variant == "scan" and theta_deg is None:
+        raise ValueError("variant 'scan' needs theta_deg")
 
     half = BOARD_MM / 2.0
     return {
@@ -482,7 +514,7 @@ def project_dict(name: str, variant: str) -> dict[str, Any]:
             },
         ],
         "assignments": [],
-        "ports": _ports(variant),
+        "ports": _ports(variant, theta_deg),
         "dumps": [_dump_dict(d) for d in DUMPS],
         "nf2ff": {
             "enabled": True,
@@ -560,7 +592,7 @@ def project_dict(name: str, variant: str) -> dict[str, Any]:
             "port_names": [],
         },
         "freecad_cmd": "",
-        "notes": _notes(variant),
+        "notes": _notes(variant, theta_deg),
         "patch_params": None,
         "primitives": _primitives(variant),
         "object_display": {},
