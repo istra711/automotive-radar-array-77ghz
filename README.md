@@ -1,267 +1,263 @@
-<h1 align="center">4×4-Patch-Array für 77 GHz auf RT/duroid 5880</h1>
+<h1 align="center">4×4 Patch Array at 77 GHz on RT/duroid 5880</h1>
 
 <p align="center">
-  <em>openEMS-Vollwellenstudie einer planaren Gruppenantenne für den automobilen
-  Radarbereich – vom Hammerstad-Erstentwurf über das Impedanz-Retuning bis zur
-  phasengesteuerten Strahlschwenkung</em>
+  <em>openEMS full-wave study of a planar antenna array for automotive radar –
+  from the Hammerstad first cut through impedance re-tuning to phased beam
+  steering</em>
 </p>
 
 <p align="center">
   <img alt="solver" src="https://img.shields.io/badge/solver-openEMS%20(FDTD)-1f5fa8">
   <img alt="band" src="https://img.shields.io/badge/band-74%E2%80%9380%20GHz-0b7285">
   <img alt="python" src="https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white">
-  <img alt="status" src="https://img.shields.io/badge/status-abgeschlossen-success">
+  <img alt="status" src="https://img.shields.io/badge/status-complete-success">
 </p>
 
 <p align="center">
-  <img src="docs/figures/fig04_array3d.png" alt="3D-Modell des 4×4-Arrays" width="760">
+  <img src="docs/figures/fig04_array3d.png" alt="3D model of the 4×4 array" width="760">
 </p>
 
 ---
 
-## Kurzbeschreibung
+## Overview
 
-Dieses Repository enthält eine vollständig skriptgesteuerte openEMS-Studie
-einer 4×4-Patch-Gruppenantenne auf **RT/duroid 5880** für **77 GHz**. Die
-Geometrie existiert nur an einer Stelle (`array_model.py`); Projekte, Läufe,
-Auswertungen und der PDF/ODT-Bericht werden daraus abgeleitet. Untersucht
-werden vier Betriebsfälle:
+This repository contains a fully script-driven openEMS study of a 4×4 patch
+antenna array on **RT/duroid 5880** at **77 GHz**. The geometry exists in
+exactly one place (`array_model.py`); projects, simulation runs, evaluations
+and the ODT/PDF report are all derived from it. Four operating cases are
+investigated:
 
-| Projekt | Inhalt |
+| Project | Content |
 |---|---|
-| `patch_element_77ghz` | Einzelelement, Produktionsband 74–80 GHz |
-| `patch_array_4x4_77ghz` | 4×4-Array, nur Port P6 angeregt (eingebettetes Element, Kopplung) |
-| `patch_array_4x4_broadside` | alle 16 Ports phasengleich |
-| `patch_array_4x4_scan30` | alle 16 Ports, progressive Phase, Keule bei +30° |
+| `patch_element_77ghz` | single element, production band 74–80 GHz |
+| `patch_array_4x4_77ghz` | 4×4 array, only port P6 driven (embedded element, coupling) |
+| `patch_array_4x4_broadside` | all 16 ports in phase |
+| `patch_array_4x4_scan30` | all 16 ports, progressive phase, beam at +30° |
 
-Dazu kommen vier Kontroll- und Verifikationsläufe, die den Anpassungsprozess
-dokumentieren (offene Speiseleitung, Inset-Variation, zwei Kandidaten).
+Four additional control and verification runs document the matching process
+(open feed line, inset variation, two design candidates).
 
-## Ergebnisse auf einen Blick
+## Results at a glance
 
-| Größe | Element | Broadside | Scan +30° |
+| Quantity | Element | Broadside | Scan +30° |
 |---|---|---|---|
-| Eingangsimpedanz bei 77 GHz | 53,8 + 14,5j Ω | – | – |
-| Reflexion \|S11\|(77) | −16,9 dB | – | – |
-| −10-dB-Bandbreite | 74,06–79,10 GHz (5,04 GHz) | – | – |
-| Richtfaktor D<sub>max</sub> | 9,38 dBi | 17,91 dBi | 17,88 dBi |
-| Wirkungsgrad η | 0,939 | 0,949 | 0,970 |
-| Gewinn | 9,11 dBi | 17,69 dBi | 17,75 dBi |
-| Keulenrichtung | +z | θ = 2°, φ = 0° | θ = 28°, φ = 0° |
-| Aktive Reflexion je Port | – | −10,8 … −4,2 dB | −14,4 … −3,9 dB |
+| Input impedance at 77 GHz | 53.8 + 14.5j Ω | – | – |
+| Reflection \|S11\|(77) | −16.9 dB | – | – |
+| −10 dB bandwidth | 74.06–79.10 GHz (5.04 GHz) | – | – |
+| Directivity D<sub>max</sub> | 9.38 dBi | 17.91 dBi | 17.88 dBi |
+| Efficiency η | 0.939 | 0.949 | 0.970 |
+| Gain | 9.11 dBi | 17.69 dBi | 17.75 dBi |
+| Beam direction | +z | θ = 2°, φ = 0° | θ = 28°, φ = 0° |
+| Active reflection per port | – | −10.8 … −4.2 dB | −14.4 … −3.9 dB |
 
-> **Hinweis zur Leistungsbilanz:** Die mitgelieferte openEMS-Nachverarbeitung
-> bestimmt die aufgenommene Leistung nur aus dem amplitudenstärksten Port. Bei
-> 16 gleichzeitig gespeisten Ports unterschätzt das die Leistung um den Faktor
-> 16 und bläht η/Gewinn um ~12 dB auf. Die Tabelle enthält die **korrigierten**
-> Werte (Summe über alle 16 Ports); Richtfaktor und Diagramme sind davon
-> unabhängig. Details in Abschnitt [Hinweise zur Auswertung](#hinweise-zur-auswertung).
+> **Note on the power budget:** the bundled openEMS post-processing takes the
+> accepted power from the largest-amplitude port only. With 16 simultaneously
+> driven ports this underestimates Pin by a factor of 16 and inflates η/gain by
+> about 12 dB. The table lists the **corrected** values (sum over all 16 ports);
+> directivity and patterns are pure field integrals and are unaffected. See
+> [Evaluation notes](#evaluation-notes).
 
 ---
 
-## 1. Aufbau der Antenne
+## 1. Antenna construction
 
 ### 1.1 Layout
 
-Vier Elemente in x und vier in y, Rastermaß d = λ<sub>0</sub>/2 = 1,947 mm,
-Platine 12 × 12 mm. Jedes Element hat einen eigenen koaxialen Sondenport von
-der Grundfläche zur Patchunterseite, sodass alle 16 Elemente unabhängig
-gespeist werden können.
+Four elements in x and four in y, spacing d = λ<sub>0</sub>/2 = 1.947 mm,
+board 12 × 12 mm. Each element has its own coaxial probe port from the ground
+plane to the patch underside, so all 16 elements can be driven independently.
 
 <p align="center">
-  <img src="docs/figures/fig01_layout.png" alt="Array-Layout" width="620">
+  <img src="docs/figures/fig01_layout.png" alt="Array layout" width="620">
 </p>
 
-### 1.2 Einzelelement und Speisung
+### 1.2 Element and feed
 
-L = 1,161 mm (resonant in x), W = 1,539 mm. Der Sonden-Inset beträgt im
-finalen Entwurf nur **0,058 mm** – rund 5 % der Patchlänge. Rechts im Bild ist
-deshalb ein Zoom auf die Speisung dargestellt; auf der Gesamtansicht wäre der
-Unterschied nicht auflösbar.
+L = 1.161 mm (resonant in x), W = 1.539 mm. In the final design the probe
+inset is only **0.058 mm** – about 5 % of the patch length. The right half of
+the figure therefore shows a zoom on the feed; at full-patch scale the
+difference would not be resolvable.
 
 <p align="center">
-  <img src="docs/figures/fig02_element.png" alt="Einzelelement mit Zoom auf die Speisung" width="860">
+  <img src="docs/figures/fig02_element.png" alt="Element with feed zoom" width="860">
 </p>
 
-### 1.3 Schichtaufbau
+### 1.3 Stack-up
 
-RT/duroid 5880 mit ε<sub>r</sub> = 2,2, tan δ = 0,0009 und h = 0,254 mm
-(10 mil); beide Kupferlagen als 35 µm dicke PEC-Schichten. Die z-Achse ist im
-Schnitt 6-fach überhöht.
+RT/duroid 5880 with ε<sub>r</sub> = 2.2, tan δ = 0.0009 and h = 0.254 mm
+(10 mil); both copper layers modelled as 35 µm PEC sheets. The z axis is
+exaggerated 6× in the cross-section.
 
 <p align="center">
-  <img src="docs/figures/fig03_stackup.png" alt="Schichtaufbau" width="780">
+  <img src="docs/figures/fig03_stackup.png" alt="Stack-up" width="780">
 </p>
 
 ---
 
-## 2. Anpassung des Einzelelements
+## 2. Matching the single element
 
-Der Hammerstad-Erstentwurf (L = 1,1383 mm, Inset 0,30 L = 0,341 mm) liefert
-bei 77 GHz nur **14,8 + 68,0j Ω** und **−1,77 dB** – eine stark induktive
-Fehlanpassung. Ein Kontrollexperiment mit offener Speiseleitung ohne Patch
-zeigt, dass die Sonde selbst eine kurze, offene Leitung mit
-**Z<sub>p</sub> = 188 Ω, ε<sub>p</sub> = 3,40** ist (−205j Ω bei 77 GHz) und
-keineswegs als Induktivität wirkt. Mit diesem Leitungsmodell lässt sich der
-Sondeneinfluss herausrechnen; ein lokales Newton-Verfahren führt anschließend
-über die beiden Stellschrauben Patchlänge und Inset auf 50 Ω.
+The Hammerstad first cut (L = 1.1383 mm, inset 0.30 L = 0.341 mm) yields only
+**14.8 + 68.0j Ω** and **−1.77 dB** at 77 GHz – a strongly inductive mismatch.
+A control run with an open feed line and no patch shows that the probe itself
+behaves as a short, open-ended line with **Z<sub>p</sub> = 188 Ω,
+ε<sub>p</sub> = 3.40** (−205j Ω at 77 GHz), not as an inductance. After
+de-embedding this line model, a local Newton iteration on the two design knobs
+– patch length and inset – drives the impedance to 50 Ω.
 
 <p align="center">
-  <img src="docs/figures/fig06_retune_journey.png" alt="Kontrollexperiment und Zin-Ortskurven" width="880">
+  <img src="docs/figures/fig06_retune_journey.png" alt="Control experiment and Zin loci" width="880">
 </p>
 
-**Entwurfskette** (simulierte Werte bei 77 GHz):
+**Design chain** (simulated values at 77 GHz):
 
-| Schritt | L (mm) | Inset | Z<sub>in</sub>(77) | \|S11\|(77) |
+| Step | L (mm) | Inset | Z<sub>in</sub>(77) | \|S11\|(77) |
 |---|---|---|---|---|
-| Hammerstad-Erstentwurf | 1,1383 | 0,30 L | 14,8 + 68,0j Ω | −1,8 dB |
-| Inset-Kontrolle | 1,1383 | 0,05 L | 66,6 + 10,8j Ω | −15,4 dB |
-| Kandidat B | 1,1683 | 0,02 L | 38,7 + 20,7j Ω | −11,7 dB |
-| **Kandidat A – final** | **1,1610** | **0,05 L** | **53,8 + 14,5j Ω** | **−16,9 dB** |
+| Hammerstad first cut | 1.1383 | 0.30 L | 14.8 + 68.0j Ω | −1.8 dB |
+| Inset control | 1.1383 | 0.05 L | 66.6 + 10.8j Ω | −15.4 dB |
+| Candidate B | 1.1683 | 0.02 L | 38.7 + 20.7j Ω | −11.7 dB |
+| **Candidate A – final** | **1.1610** | **0.05 L** | **53.8 + 14.5j Ω** | **−16.9 dB** |
 
-Das Optimum liegt mit −17,4 dB bei 76,58 GHz. Mehr als etwa −17 dB sind mit
-diesen zwei Stellschrauben bei dieser Substratdicke nicht erreichbar: Die
-Impedanzkarte ist nahe am Optimum fast kollinear, Länge und Inset verschieben
-die Impedanz in dieselbe Richtung.
+The optimum is −17.4 dB at 76.58 GHz. More than about −17 dB is not reachable
+with these two knobs at this substrate thickness: near the optimum the
+impedance map is almost collinear, i.e. length and inset move the impedance in
+the same direction.
 
 <p align="center">
-  <img src="docs/figures/fig05_element_zin_s11.png" alt="Eingangsimpedanz und Reflexion" width="880">
+  <img src="docs/figures/fig05_element_zin_s11.png" alt="Input impedance and reflection" width="880">
 </p>
 
 ---
 
-## 3. Strahlungsverhalten
+## 3. Radiation behaviour
 
-### 3.1 Isoliertes Element
+### 3.1 Isolated element
 
-Richtfaktor 9,38 dBi, Gewinn 9,11 dBi, Wirkungsgrad 0,939. Die Keule steht
-erwartungsgemäß in +z, die E-Ebene ist die xz-Ebene.
+Directivity 9.38 dBi, gain 9.11 dBi, efficiency 0.939. The beam points in +z
+as expected and the E plane is the xz plane.
 
 <p align="center">
-  <img src="docs/figures/fig07_element_pattern3d.png" alt="3D-Richtdiagramm des Elements" width="560">
+  <img src="docs/figures/fig07_element_pattern3d.png" alt="3D element pattern" width="560">
 </p>
 
-### 3.2 Eingebettetes Element und Kopplung
+### 3.2 Embedded element and coupling
 
-Im Lauf `embedded` wird nur Port P6 angeregt, alle anderen Ports sind passiv
-mit 50 Ω abgeschlossen. Die Eigenreflexion steigt auf **−18,0 dB**, der
-stärkste Koppler ist das direkte Nachbarelement in x mit **−14,3 dB** bei
-1,95 mm; die Diagonalen liegen bei etwa −25 dB, die Randelemente unter −28 dB.
-Das eingebettete Element erreicht 9,16 dBi bei η = 0,814 – die Differenz zum
-isolierten Element ist die in die Nachbarn abgegebene Leistung, die im
-voll gespeisten Array wieder abgestrahlt wird.
+In the `embedded` run only port P6 is driven; all other ports are passively
+terminated in 50 Ω. The self-reflection rises to **−18.0 dB**, the strongest
+coupler is the direct neighbour in x at **−14.3 dB** and 1.95 mm distance; the
+diagonal neighbours are around −25 dB and the edge elements below −28 dB. The
+embedded element reaches 9.16 dBi at η = 0.814 – the difference to the
+isolated element is the power handed to the neighbours, which is re-radiated
+in the fully driven array.
 
 <p align="center">
-  <img src="docs/figures/fig09_coupling.png" alt="Kopplung im eingebetteten Lauf" width="880">
+  <img src="docs/figures/fig09_coupling.png" alt="Coupling in the embedded run" width="880">
 </p>
 
 <p align="center">
-  <img src="docs/figures/fig08_element_vs_embedded.png" alt="Isoliertes vs. eingebettetes Element" width="880">
+  <img src="docs/figures/fig08_element_vs_embedded.png" alt="Isolated vs embedded element" width="880">
 </p>
 
 ---
 
-## 4. Das 4×4-Array
+## 4. The 4×4 array
 
 ### 4.1 Broadside
 
-Alle 16 Ports phasengleich: **17,91 dBi** Richtfaktor. Das passt gut zur
-Aperturabschätzung D ≈ 4πA/λ<sub>0</sub>² = 17,0 dBi für eine gleichförmig
-belegte λ<sub>0</sub>/2-Apertur; der um 0,9 dB höhere Wert folgt aus der
-Elementcharakteristik. Der Vergleich mit Element × Arrayfaktor stimmt bis
-−20 dB hervorragend überein – Abweichungen in den Nullstellen und weiten
-Nebenkeulen zeigen die vernachlässigte Kopplung und Randbeugung.
+All 16 ports driven in phase: **17.91 dBi** directivity. This agrees well with
+the aperture estimate D ≈ 4πA/λ<sub>0</sub>² = 17.0 dBi for a uniformly excited
+λ<sub>0</sub>/2 aperture; the 0.9 dB higher value follows from the element
+pattern. The comparison with element × array factor agrees excellently down to
+−20 dB – deviations in the nulls and wide sidelobes are the signature of the
+neglected coupling and edge diffraction.
 
 <p align="center">
-  <img src="docs/figures/fig10_broadside.png" alt="Broadside-Diagramm" width="900">
+  <img src="docs/figures/fig10_broadside.png" alt="Broadside pattern" width="900">
 </p>
 
-### 4.2 Strahlschwenkung um +30°
+### 4.2 Beam steering by +30°
 
-Progressiv −90° je Element in x (entspricht 90° pro Raster d = λ<sub>0</sub>/2).
-Das Vorzeichen folgt der openEMS-Phasenkonvention (eine in +x laufende Welle
-trägt exp(−jkx), die Anregung muss voreilen) und wurde mit einem Testlauf
-verifiziert: Mit umgekehrtem Vorzeichen erscheint die Keule spiegelbildlich
-bei φ = 180°.
+Progressive −90° per element in x (90° per spacing d = λ<sub>0</sub>/2). The
+sign follows the openEMS phase convention (a wave travelling in +x carries
+exp(−jkx), so the excitation must lead) and was verified with a test run: with
+the opposite sign the beam appears mirrored at φ = 180°.
 
-Das Maximum liegt bei **θ = 28°, φ = 0°** mit 17,75 dBi; die Ablage gegenüber
-den nominellen 30° folgt aus der endlichen Elementkeule und der Kopplung.
+The maximum is at **θ = 28°, φ = 0°** with 17.75 dBi; the offset from the
+nominal 30° results from the finite element beam and mutual coupling.
 
 <p align="center">
-  <img src="docs/figures/fig11_scan30.png" alt="Geschwenkte Keule" width="900">
+  <img src="docs/figures/fig11_scan30.png" alt="Steered beam" width="900">
 </p>
 
-### 4.3 Vergleich der Betriebsarten
+### 4.3 Comparison of both modes
 
-Die aktive Reflexion liegt im Broadside-Fall zwischen −10,8 dB (Port 1/13) und
-−4,2 dB (Port 4/8/12/16). Im geschwenkten Betrieb verbessert sie sich für die
-meisten Ports um 3–6 dB, weil die progressive Phase die Kopplungsbeiträge
-teilweise destruktiv überlagert; die rechte Spalte bei x = +2,4 mm bleibt mit
-etwa −4 dB in beiden Fällen auffällig.
-
-<p align="center">
-  <img src="docs/figures/fig12_scan_summary.png" alt="Vergleich Broadside / Scan" width="880">
-</p>
-
----
-
-## 5. Nahfeld
-
-Frequenzbereichs-Snapshots bei 77 GHz aus dem Broadside-Lauf. In der E-Ebene
-ist die gleichphasige Anregung der vier x-Elemente als gemeinsame Wellenfront
-zu erkennen; die Draufsicht 1,02 mm über der Platine zeigt die 4×4-Apertur als
-zusammenhängende Quellfläche.
+Active reflection in the broadside case lies between −10.8 dB (ports 1/13) and
+−4.2 dB (ports 4/8/12/16). In the steered case it improves by 3–6 dB for most
+ports because the progressive phase partially cancels the coupling
+contributions; the right-hand column at x = +2.4 mm remains conspicuous at
+about −4 dB in both cases.
 
 <p align="center">
-  <img src="docs/figures/fig13_nearfield_xz.png" alt="Nahfeld E-Ebene" width="760">
-</p>
-
-<p align="center">
-  <img src="docs/figures/fig14_nearfield_top.png" alt="Nahfeld Draufsicht" width="600">
+  <img src="docs/figures/fig12_scan_summary.png" alt="Broadside vs scan comparison" width="880">
 </p>
 
 ---
 
-## 6. Diskretisierung und Rechenaufwand
+## 5. Near field
 
-Mesh-Preset „high“ mit expliziten Zellgrößen: max. 0,25 mm, verfeinerte Kante
-0,10 mm, min. 0,07 mm, min. z 0,06 mm. Die 0,254-mm-Folie wird von vier Zellen
-in z aufgelöst, Metallkanten von rund drei Zellen. Abbruch bei −40 dB
-Restenergie.
+Frequency-domain snapshots at 77 GHz from the broadside run. In the E plane
+the in-phase excitation of the four x-elements appears as a common wave front;
+the top view 1.02 mm above the board shows the 4×4 aperture as a contiguous
+source area.
 
-| Lauf | Gitter (Zellen) | Zeitschritte | Dauer |
+<p align="center">
+  <img src="docs/figures/fig13_nearfield_xz.png" alt="Near field, E plane" width="760">
+</p>
+
+<p align="center">
+  <img src="docs/figures/fig14_nearfield_top.png" alt="Near field, top view" width="600">
+</p>
+
+---
+
+## 6. Discretisation and computational effort
+
+Mesh preset "high" with explicit cell sizes: max 0.25 mm, refined edge
+0.10 mm, min 0.07 mm, min z 0.06 mm. The 0.254 mm laminate is resolved by four
+cells in z and the metal edges by about three cells. The FDTD run stops at
+−40 dB residual energy.
+
+| Run | Grid (cells) | Time steps | Wall time |
 |---|---|---|---|
-| Einzelelement | 154×155×75 = 1 790 250 | 10 506 | ca. 20–30 min |
-| Eingebettetes Element | 163×165×75 = 2 017 125 | 10 598 | ca. 20–30 min |
-| Broadside-Array | 163×165×75 = 2 017 125 | 10 598 | ca. 20–30 min |
-| Array +30° | 163×165×75 = 2 017 125 | 10 598 | ca. 20–30 min |
+| Single element | 154×155×75 = 1,790,250 | 10,506 | approx. 20–30 min |
+| Embedded element | 163×165×75 = 2,017,125 | 10,598 | approx. 20–30 min |
+| Broadside array | 163×165×75 = 2,017,125 | 10,598 | approx. 20–30 min |
+| Array +30° | 163×165×75 = 2,017,125 | 10,598 | approx. 20–30 min |
 
 ---
 
-## 7. Reproduktion
+## 7. Reproduction
 
-**Voraussetzungen:** Python 3.11 mit numpy, matplotlib, h5py und Pillow sowie
-eine openEMS-Installation, die über die VisualopenEMS-Projektschicht
-erreichbar ist:
+**Requirements:** Python 3.11 with numpy, matplotlib, h5py and Pillow, plus an
+openEMS installation reachable through the VisualopenEMS project layer:
 
 ```powershell
 $env:VISUALOPENEMS_ROOT = "C:\path\to\FreeCAD_OpenEMS_GUI"
 ```
 
-**Kompletter Ablauf:**
+**Full workflow:**
 
 ```powershell
-python make_project.py --preview      # Projekte + Konstruktionsbilder 01..04
-python validate_project.py            # Mesh-/Kollisionsprüfung
+python make_project.py --preview      # projects + construction figures 01..04
+python validate_project.py            # mesh / collision checks
 python run_headless.py patch_element_77ghz.fcsim.json
 python run_headless.py patch_array_4x4_77ghz.fcsim.json
 python run_headless.py patch_array_4x4_broadside.fcsim.json
 python run_headless.py patch_array_4x4_scan30.fcsim.json
-python plot_results.py                # Bilder 05..14 + docs/results.json
-python build_docs.py                  # Bericht DE + EN
+python plot_results.py                # figures 05..14 + docs/results.json
+python build_docs.py                  # report DE + EN
 ```
 
-Oder alles auf einmal (überspringt bereits vorhandene Ergebnisse):
+Or everything at once (skips results that already exist):
 
 ```powershell
 python run_all.py
@@ -269,89 +265,62 @@ python run_all.py
 
 ---
 
-## 8. Projektstruktur
+## 8. Repository layout
 
 ```
-array_model.py            einzige Quelle der Geometrie, Ports, Mesh, NF2FF-Box
-make_project.py           schreibt die .fcsim.json-Projekte + Bilder 01..04
-validate_project.py       prüft Kollisionen, Mesh-Regeln, NF2FF-Box
-run_headless.py           erzeugt das openEMS-Skript und startet den Lauf
-plot_results.py           wertet S-Parameter und Fernfelder aus (Bilder 05..14)
-build_docs.py             baut den deutschen und englischen ODT-Bericht
-run_all.py                Gesamtlauf mit Skip-Logik
-analyze_zin.py            Zin(f) schnell auswerten
-fit_model.py              Leitungsmodell der Sonde + Newton-Retuning
-make_candidate.py         Kandidatenprojekte erzeugen
-analyze_controls.py       Kontrollläufe vergleichen
-make_controls.py          Kontrollprojekte erzeugen (probe_only, inset005)
-make_wideband.py          Breitband-Referenzlauf
-*.fcsim.json              die Projekte (Produktion + Kontrollen)
-work_*/                   Simulationsausgaben (nicht versioniert)
-docs/figures/             Bilder 01..14
-docs/results.json         Zahlenquelle des Berichts
-docs/*.odt                Bericht Deutsch + Englisch
+array_model.py            single source of truth: geometry, ports, mesh, NF2FF box
+make_project.py           writes the .fcsim.json projects + figures 01..04
+validate_project.py       checks collisions, mesh rules, NF2FF box
+run_headless.py           generates the openEMS script and runs it
+plot_results.py           evaluates S-parameters and far fields (figures 05..14)
+build_docs.py             builds the German and English ODT reports
+run_all.py                end-to-end runner with skip logic
+analyze_zin.py            quick Zin(f) evaluation
+fit_model.py              probe line model + Newton re-tuning
+make_candidate.py         creates candidate projects
+analyze_controls.py       compares the control runs
+make_controls.py          creates control projects (probe_only, inset005)
+make_wideband.py          wideband reference run
+*.fcsim.json              the projects (production + controls)
+work_*/                   simulation output (not versioned)
+docs/figures/             figures 01..14
+docs/results.json         numeric source for the report
+docs/*.odt                report in German and English
 ```
 
 ---
 
-## 9. Dokumentation
+## 9. Documentation
 
-| Datei | Inhalt |
+| File | Content |
 |---|---|
-| [`docs/patch_array_4x4_77ghz_de.odt`](docs/patch_array_4x4_77ghz_de.odt) | 15-seitiger Bericht, 14 Bilder, 4 Tabellen |
-| [`docs/patch_array_4x4_77ghz_en.odt`](docs/patch_array_4x4_77ghz_en.odt) | englische Fassung |
-| [`docs/results.json`](docs/results.json) | alle Kennzahlen als JSON |
+| [`docs/patch_array_4x4_77ghz_de.odt`](docs/patch_array_4x4_77ghz_de.odt) | 15-page report in German, 14 figures, 4 tables |
+| [`docs/patch_array_4x4_77ghz_en.odt`](docs/patch_array_4x4_77ghz_en.odt) | English edition |
+| [`docs/results.json`](docs/results.json) | all key figures as JSON |
 
-## Hinweise zur Auswertung
+## Evaluation notes
 
-* **Wirkungsgrad/Gewinn der 16-Port-Läufe.** Die gebündelte
-  openEMS-Nachverarbeitung nutzt nur den amplitudenstärksten Port
-  (`postproc.nf2ff._load_pin_spectral`). Bei 16 gleichzeitig gespeisten Ports
-  ist Pin dadurch ~16× zu klein, η und Gewinn sind ~12 dB zu hoch.
-  `plot_results.py` summiert die aufgenommene Leistung über alle Ports;
-  Richtfaktor und Diagramme sind reine Feldintegrale und bleiben unberührt.
-* **Zeitachsen der Portsignale.** openEMS legt Spannung und Strom auf leicht
-  versetzten Zeitrastern ab (≈0,03–0,04 dt). Werden beide Signale auf ihrer
-  eigenen Achse transformiert, entsteht eine scheinbare Phasenverschiebung und
-  ein Fehler in der Wirkleistung von bis zu 11 %. Die Auswertung verwendet
-  deshalb – wie die openEMS-Nachverarbeitung – dieselbe Zeitachse für beide
-  Signale.
-* **Phasenvorzeichen.** „+30°“ bedeutet Strahlrichtung +x (φ = 0°). Die
-  Konvention wurde mit einem Testlauf verifiziert.
+* **Efficiency/gain of the 16-port runs.** The bundled openEMS post-processing
+  uses only the largest-amplitude port (`postproc.nf2ff._load_pin_spectral`).
+  With 16 simultaneously driven ports Pin is ~16× too small, so η and gain are
+  ~12 dB too high. `plot_results.py` sums the accepted power over all ports;
+  directivity and patterns are unaffected.
+* **Port signal time axes.** openEMS stores voltage and current on slightly
+  offset time grids (≈0.03–0.04 dt). Transforming both signals on their own
+  axes introduces an apparent phase shift and an error in the real power of up
+  to 11 %. The evaluation therefore uses the same time axis for both signals,
+  as the openEMS post-processing does.
+* **Phase sign.** "+30°" means a beam towards +x (φ = 0°). The convention was
+  verified with a test run.
 
-## Genauigkeit und Grenzen
+## Accuracy and limitations
 
-* Numerische Unsicherheit des Richtfaktors ≈ ±0,2 dB.
-* Der Arrayfaktor-Vergleich ignoriert Kopplung und Randbeugung – er beschreibt
-  die Strahlform gut, die Strahlrichtung nur näherungsweise.
-* Die Sondenanpassung ist mit zwei Stellschrauben auf ≈ −17 dB begrenzt.
-* Die rechte Arraykante zeigt eine aktive Reflexion von nur ≈ −4 dB; ein
-  reales Modul bräuchte dort eine Anpassung des Speisenetzes.
-
----
-
-# English summary
-
-A fully script-driven **openEMS FDTD** study of a planar **4×4 patch array at
-77 GHz on RT/duroid 5880** (ε<sub>r</sub> = 2.2, tan δ = 0.0009, h = 0.254 mm).
-
-* **Element** (L = 1.161 mm, W = 1.539 mm, probe inset 0.058 mm):
-  Z<sub>in</sub>(77) = 53.8 + 14.5j Ω, |S11| = −16.9 dB, −10 dB bandwidth
-  74.06–79.10 GHz, D<sub>max</sub> = 9.38 dBi, η = 0.939.
-* **Retuning story:** the Hammerstad first cut gives 14.8 + 68.0j Ω
-  (−1.8 dB). A control run with an open feed line shows that the probe is a
-  short open line (Z<sub>p</sub> = 188 Ω, ε<sub>p</sub> = 3.40), not an
-  inductance. After de-embedding it, a Newton iteration on patch length and
-  inset reaches the final design.
-* **Broadside array:** D<sub>max</sub> = 17.91 dBi, η = 0.949, gain
-  17.69 dBi, beam at θ = 2°.
-* **Phased array (+30°):** progressive −90° per element, beam at
-  θ = 28°, φ = 0°, gain 17.75 dBi, η = 0.970.
-* **Reports:** `docs/patch_array_4x4_77ghz_de.odt` and `..._en.odt`
-  (15 pages, 14 figures, 4 tables each).
-
-Run `python run_all.py` to regenerate everything; simulation output
-(`work_*/`) is not versioned.
+* Numerical uncertainty of the directivity is about ±0.2 dB.
+* The array-factor comparison ignores coupling and edge diffraction – it
+  describes the pattern well, the beam direction only approximately.
+* Probe matching with two knobs is limited to about −17 dB.
+* The right-hand array edge shows an active reflection of only about −4 dB; a
+  real module would need feed matching there.
 
 ---
 
