@@ -1,19 +1,29 @@
 """Build the 3D beam-steering animation from the full-wave sweep runs.
 
 Reads the archived 77 GHz gain patterns in ``docs/sweep/scan_*.npz`` (written
-by ``run_sweep.py``) and renders one 3D lobe per steering angle with a fixed
-camera, a fixed colour scale and a fixed radial scale, then assembles the
-frames into ``docs/figures/anim_beam_steer.gif``.
+by ``run_sweep.py``) and renders one frame per steering angle with a fixed
+camera, a fixed colour scale and a fixed radial scale.  Each frame shows the
+3D lobe next to the polar E-plane cut, so the beam direction can be read off
+directly.
+
+Outputs (all in ``docs/figures``)::
+
+    anim_beam_steer.gif    universal fallback, 256 colours
+    anim_beam_steer.webp   animated WebP (smaller, smoother, inline on GitHub)
+    anim_beam_steer.mp4    H.264, for download
+    anim_beam_steer_frame.png  static frame (+30 deg) for the ODT reports
+    fig15_beam_sweep.png   all E-plane cuts in one figure
 
 Usage::
 
     python make_animation.py
-    python make_animation.py --duration 300 --size 8.2
+    python make_animation.py --duration 200 --size 7.0
 """
 
 from __future__ import annotations
 
 import argparse
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -49,6 +59,15 @@ def load_frames() -> list[dict]:
     return frames
 
 
+def plane_cut(frame: dict) -> tuple[np.ndarray, np.ndarray, float]:
+    """Signed E-plane cut: phi=0 towards +x, phi=180 mirrored towards -x."""
+    if frame["steer"] < 0:
+        j = int(np.argmin(np.abs(frame["phi"] - 180.0)))
+        return -frame["theta"], frame["gain"][:, j], -frame["peak_theta"]
+    j = int(np.argmin(np.abs(frame["phi"] - 0.0)))
+    return frame["theta"], frame["gain"][:, j], frame["peak_theta"]
+
+
 def render(frame: dict, gmax: float, vmin: float, path: Path,
            size: float) -> None:
     th = np.radians(frame["theta"])
@@ -63,12 +82,14 @@ def render(frame: dict, gmax: float, vmin: float, path: Path,
 
     norm = Normalize(vmin, gmax)
     cmap = plt.get_cmap("jet")
+    col = plt.get_cmap("coolwarm")(0.5 + 0.5 * frame["steer"] / 60.0)
 
-    fig = plt.figure(figsize=(size, size * 0.92), dpi=110)
-    ax = fig.add_subplot(111, projection="3d")
+    fig = plt.figure(figsize=(size * 1.5, size * 0.80), dpi=110)
+    gs = fig.add_gridspec(1, 2, width_ratios=[1.22, 1.0])
+
+    ax = fig.add_subplot(gs[0, 0], projection="3d")
     ax.plot_surface(X, Y, Z, facecolors=cmap(norm(G)), rstride=2, cstride=2,
                     linewidth=0, antialiased=False, shade=False)
-
     ax.set_box_aspect((1, 1, 0.9))
     lim = 1.06
     ax.set_xlim(-lim, lim)
@@ -79,28 +100,60 @@ def render(frame: dict, gmax: float, vmin: float, path: Path,
     ax.set_zlabel("z", labelpad=-6)
     ax.tick_params(labelsize=7, pad=-2)
     ax.view_init(elev=22, azim=-132)
-    ax.set_title(
-        f"Beam steering, full wave, 77 GHz\n"
-        f"$\\theta_0$ = {frame['steer']:+.0f}$^\\circ$   "
-        f"peak $\\theta$ = {frame['peak_theta']:.0f}$^\\circ$, "
-        f"$\\varphi$ = {frame['peak_phi']:.0f}$^\\circ$   "
-        f"({frame['peak_gain']:.2f} dBi)",
-        fontsize=10)
 
     m = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     m.set_array([])
-    fig.colorbar(m, ax=ax, shrink=0.62, pad=0.02, label="gain (dBi)")
-    fig.tight_layout(pad=0.4)
+    fig.colorbar(m, ax=ax, shrink=0.60, pad=0.02, label="gain (dBi)")
+
+    # polar E-plane cut
+    x, g, xpk = plane_cut(frame)
+    axp = fig.add_subplot(gs[0, 1], projection="polar")
+    axp.plot(np.radians(x), g, color=col, lw=2.0)
+    axp.plot([np.radians(xpk)], [frame["peak_gain"]], "o", color=col, ms=6)
+    axp.axvline(np.radians(frame["steer"]), color=col, lw=0.8, ls=":")
+    axp.set_thetamin(-90)
+    axp.set_thetamax(90)
+    axp.set_theta_zero_location("N")
+    axp.set_theta_direction(-1)
+    axp.set_rlim(max(vmin, gmax - DB_FLOOR), gmax + 3.0)
+    axp.set_yticklabels([])
+    axp.tick_params(labelsize=8)
+    axp.set_title("E plane", fontsize=9, pad=6)
+    axp.grid(True, alpha=0.4)
+
+    fig.suptitle(
+        f"Beam steering, full wave, 77 GHz     "
+        f"$\\theta_0$ = {frame['steer']:+.0f}$^\\circ$     "
+        f"peak $\\theta$ = {frame['peak_theta']:.0f}$^\\circ$, "
+        f"$\\varphi$ = {frame['peak_phi']:.0f}$^\\circ$  "
+        f"({frame['peak_gain']:.2f} dBi)",
+        fontsize=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.92), pad=0.3)
     fig.savefig(path)
     plt.close(fig)
 
 
+def write_movie(tmp: Path, n: int, fps: int, mp4: Path) -> bool:
+    try:
+        import imageio_ffmpeg
+    except Exception:                       # noqa: BLE001
+        return False
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    cmd = [exe, "-y", "-loglevel", "error",
+           "-framerate", str(fps),
+           "-i", str(tmp / "frame_%02d.png"),
+           "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+           "-pix_fmt", "yuv420p", "-c:v", "libx264", "-crf", "20",
+           str(mp4)]
+    return subprocess.call(cmd) == 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--duration", type=int, default=260,
+    ap.add_argument("--duration", type=int, default=220,
                     help="frame duration in ms")
-    ap.add_argument("--size", type=float, default=7.6,
-                    help="figure width in inches")
+    ap.add_argument("--size", type=float, default=6.4,
+                    help="3D panel width scale")
     ap.add_argument("--colors", type=int, default=256)
     args = ap.parse_args()
 
@@ -117,6 +170,8 @@ def main() -> int:
     FIG.mkdir(parents=True, exist_ok=True)
     tmp = HERE / "sweep_frames"
     tmp.mkdir(exist_ok=True)
+    for old in tmp.glob("frame_*.png"):
+        old.unlink()
     paths = []
     for i, fr in enumerate(frames):
         p = tmp / f"frame_{i:02d}.png"
@@ -131,6 +186,7 @@ def main() -> int:
     Image.open(paths[pick]).save(fallback)
     print(f"wrote {fallback}")
 
+    # GIF (universal)
     imgs = [Image.open(p).convert("RGB") for p in paths]
     quants = [im.quantize(colors=args.colors, method=Image.MEDIANCUT)
               for im in imgs]
@@ -138,27 +194,32 @@ def main() -> int:
     quants[0].save(gif, save_all=True, append_images=quants[1:],
                    duration=args.duration, loop=0, optimize=True,
                    disposal=2)
-    size_mb = gif.stat().st_size / 1e6
-    print(f"wrote {gif}  ({size_mb:.2f} MB, {len(quants)} frames, "
-          f"{args.duration} ms)")
+    print(f"wrote {gif}  ({gif.stat().st_size/1e6:.2f} MB)")
 
-    # static companion: signed E-plane cuts (phi=0 for +x, phi=180 for -x)
+    # animated WebP (smaller, smoother; renders inline on GitHub)
+    webp = FIG / "anim_beam_steer.webp"
+    imgs[0].save(webp, format="WEBP", save_all=True, append_images=imgs[1:],
+                 duration=args.duration, loop=0, quality=82, method=6)
+    print(f"wrote {webp}  ({webp.stat().st_size/1e6:.2f} MB)")
+
+    # MP4 via the ffmpeg binary shipped with imageio-ffmpeg
+    fps = max(1, int(round(1000.0 / args.duration)))
+    mp4 = FIG / "anim_beam_steer.mp4"
+    if write_movie(tmp, len(frames), fps, mp4):
+        print(f"wrote {mp4}  ({mp4.stat().st_size/1e6:.2f} MB)")
+    else:
+        print("mp4 skipped (no ffmpeg)")
+
+    # static companion: signed E-plane cuts
     fig, ax = plt.subplots(figsize=(8.6, 4.6), dpi=150)
     cmap = plt.get_cmap("coolwarm")
     snorm = Normalize(min(f["steer"] for f in frames),
                       max(f["steer"] for f in frames))
     for fr in frames:
-        if fr["steer"] < 0:
-            j = int(np.argmin(np.abs(fr["phi"] - 180.0)))
-            x = -fr["theta"]
-            xpk = -fr["peak_theta"]
-        else:
-            j = int(np.argmin(np.abs(fr["phi"] - 0.0)))
-            x = fr["theta"]
-            xpk = fr["peak_theta"]
-        col = cmap(snorm(fr["steer"]))
-        ax.plot(x, fr["gain"][:, j], color=col, lw=1.6)
-        ax.plot([xpk], [fr["peak_gain"]], "o", ms=3.5, color=col)
+        x, g, xpk = plane_cut(fr)
+        c = cmap(snorm(fr["steer"]))
+        ax.plot(x, g, color=c, lw=1.2)
+        ax.plot([xpk], [fr["peak_gain"]], "o", ms=2.6, color=c)
     ax.axhline(gmax - 3.0, color="#7f8c8d", lw=0.8, ls=":")
     ax.set_xlabel("signed theta (deg)  -  E plane "
                   "($\\varphi$ = 0 for $\\theta_0>0$, $\\varphi$ = 180 for "

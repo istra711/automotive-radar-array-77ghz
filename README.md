@@ -222,14 +222,23 @@ source area.
 ## 6. Beam-steering animation (full wave)
 
 <p align="center">
-  <img src="docs/figures/anim_beam_steer.gif" alt="Full-wave beam steering animation" width="720">
+  <img src="docs/figures/anim_beam_steer.webp" alt="Full-wave beam steering animation" width="760">
 </p>
 
-Eleven **complete FDTD runs**, one per steering angle from −50° to +50° in 10°
-steps. Every run uses the identical board and mesh and only changes the
+Twenty-five **complete FDTD runs**, one per steering angle from −60° to +60°
+in 5° steps. Every run uses the identical board and mesh and only changes the
 progressive port phase, so the animation is a genuine full-wave sweep
 including mutual coupling – not an array-factor interpolation. The 77 GHz gain
 pattern of each run is archived in `docs/sweep/scan_*.npz` (≈60 kB each).
+
+The animation is available as animated **WebP** (primary, ~10× smaller) and
+**GIF** (fallback) plus an **MP4** for download:
+
+| File | Format |
+|---|---|
+| [`anim_beam_steer.webp`](docs/figures/anim_beam_steer.webp) | animated WebP, inline on GitHub |
+| [`anim_beam_steer.gif`](docs/figures/anim_beam_steer.gif) | GIF, universal fallback |
+| [`anim_beam_steer.mp4`](docs/figures/anim_beam_steer.mp4) | H.264, 4 fps |
 
 <p align="center">
   <img src="docs/figures/fig15_beam_sweep.png" alt="E-plane cuts of the full sweep" width="820">
@@ -237,15 +246,15 @@ pattern of each run is archived in `docs/sweep/scan_*.npz` (≈60 kB each).
 
 The θ₀ = 0° run reproduces the production broadside result exactly
 (17.914 dBi at θ = 2°), which validates the sweep pipeline end to end.
-The peak follows the nominal angle but lags with growing angle (≈2° at ±10°,
-2–8° at ±30°, 16–18° at ±50°) because the element pattern rolls off towards
+The peak follows the nominal angle but lags with growing angle (≈1–2° at ±10°,
+2–8° at ±30°, 18–26° at ±50–60°) because the element pattern rolls off towards
 large angles; the peak gain stays at 17.6–18.2 dBi up to ±30° and drops to
-15.9/16.5 dBi at ±50°.
+14.5/15.3 dBi at ±60°.
 
 ```powershell
-python make_sweep.py        # write the 11 projects (phase step per angle)
-python run_sweep.py         # run them (2 in parallel, ~10 min per angle)
-python make_animation.py    # GIF + static sweep figure
+python make_sweep.py        # write the projects for all angles
+python run_sweep.py         # run them (2 in parallel, 10-25 min per angle)
+python make_animation.py    # WebP + GIF + MP4 + static sweep figure
 ```
 
 ---
@@ -306,7 +315,7 @@ run_headless.py           generates the openEMS script and runs it
 plot_results.py           evaluates S-parameters and far fields (figures 05..14)
 make_sweep.py             writes the 11 beam-steering projects
 run_sweep.py              runs the full-wave sweep, archives docs/sweep/*.npz
-make_animation.py         builds anim_beam_steer.gif + figure 15
+make_animation.py         builds the animation (WebP/GIF/MP4) + figure 15
 build_docs.py             builds the German and English ODT reports
 run_all.py                end-to-end runner with skip logic
 analyze_zin.py            quick Zin(f) evaluation
@@ -317,7 +326,7 @@ make_controls.py          creates control projects (probe_only, inset005)
 make_wideband.py          wideband reference run
 *.fcsim.json              the projects (production + controls)
 work_*/                   simulation output (not versioned)
-docs/figures/             figures 01..15 + anim_beam_steer.gif
+docs/figures/             figures 01..15 + anim_beam_steer.{webp,gif,mp4}
 docs/sweep/               archived 77 GHz patterns of the steering sweep
 docs/results.json         numeric source for the report
 docs/*.odt                report in German and English
@@ -329,8 +338,10 @@ docs/*.odt                report in German and English
 
 | File | Content |
 |---|---|
-| [`docs/patch_array_4x4_77ghz_de.odt`](docs/patch_array_4x4_77ghz_de.odt) | 15-page report in German, 14 figures, 4 tables |
+| [`docs/patch_array_4x4_77ghz_de.odt`](docs/patch_array_4x4_77ghz_de.odt) | 16-page report in German, 15 figures, 4 tables |
+| [`docs/patch_array_4x4_77ghz_de.pdf`](docs/patch_array_4x4_77ghz_de.pdf) | same report as PDF (viewable in the browser) |
 | [`docs/patch_array_4x4_77ghz_en.odt`](docs/patch_array_4x4_77ghz_en.odt) | English edition |
+| [`docs/patch_array_4x4_77ghz_en.pdf`](docs/patch_array_4x4_77ghz_en.pdf) | same report as PDF |
 | [`docs/results.json`](docs/results.json) | all key figures as JSON |
 
 ## Evaluation notes

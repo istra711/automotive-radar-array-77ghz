@@ -241,7 +241,7 @@ def array_extent_mm() -> tuple[float, float]:
 
 
 #: Beam steering angles (deg, E-plane) of the full-wave sweep animation.
-SWEEP_ANGLES_DEG = [-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50]
+SWEEP_ANGLES_DEG = [float(a) for a in range(-60, 61, 5)]
 
 
 def sweep_tag(theta_deg: float) -> str:
