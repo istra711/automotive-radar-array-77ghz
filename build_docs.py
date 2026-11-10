@@ -145,6 +145,8 @@ def build(lang: str) -> Path:
           f"Frequency band: {N(am.F_START_HZ/1e9, 0)}–{N(am.F_STOP_HZ/1e9, 0)} GHz, "
           f"centre {N(am.F0_HZ/1e9, 0)} GHz"), style="CoverMeta")
     r.p(date.today().isoformat(), style="CoverMeta")
+    r.p("© 2026 Michael T. — all rights reserved; reuse requires written permission",
+        style="CoverMeta")
 
     r.start_main()
     r.toc()

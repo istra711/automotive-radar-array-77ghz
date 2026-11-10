@@ -371,3 +371,18 @@ docs/*.odt                report in German and English
 ---
 
 <p align="center"><sub>VisualopenEMS · openEMS 2026</sub></p>
+
+---
+
+## License and reuse
+
+© 2026 Michael T. All rights reserved.  The material in this repository
+(source code, models, data, figures and documents) is published for viewing
+and evaluation only.  Any reuse, modification, redistribution or publication,
+in whole or in part, requires prior written permission from the author.
+See [LICENSE](LICENSE).
+
+**Weiternutzung:** Alle Inhalte dieses Repositories sind ausschließlich zur
+Einsicht und Bewertung veröffentlicht. Jede Weiternutzung – auch auszugsweise –
+bedarf der vorherigen schriftlichen Genehmigung des Urhebers (siehe
+[LICENSE](LICENSE)).
